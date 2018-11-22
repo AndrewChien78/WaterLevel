@@ -1,0 +1,39 @@
+\documentclass[]{article}
+
+%opening
+\title{Water Level Research Papers and Methodology Review}
+\author{Andrew Chien Kai Bing}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+
+\section{Paper Review}
+	The 1st paper review here is the paper by \cite{Nguyen2015Oct}. This conference paper cited the suitability of SVR as a way to predict water levels in the Mekong River.
+	
+	The problem was defined as follows:
+	Forecast 5-lead-day water levels at Thakhek station on Mekong river.
+	
+	The Relationship between input and output features:\\
+
+		\(H_{Thakhek}(t + 5) = f(H_{Thakhek}(t),H_{Thakhek}(t − 1),H_{Thakhek}(t − 2),H_{up}(t),H_{up}(t − 1),H_{up}(t − 2)).\)\\	
+	
+	where the current and 2 previous days water level of Thakhek station is used and current and 2 previous days water level is used to of Nongkhai station is used. Nongkhai is the 300km upstream station of Mekong River.\\
+	
+	Machine Learning Models used:
+	\begin{itemize}
+		\item LASSO
+		\item Random Forests
+		\item Support Vector Regression
+	\end{itemize}
+
+
+	% we recommend bibtex for bibliography
+	\bibliography{Methods}
+	\bibliographystyle{ieeetr}
+\end{document}
+

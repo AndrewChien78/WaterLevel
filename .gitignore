@@ -1,0 +1,10 @@
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+/*.pdf
+*.synctex.gz
+*.bbl
+*.blg
+*.out
+Water_Levels_and_Flows.csv
