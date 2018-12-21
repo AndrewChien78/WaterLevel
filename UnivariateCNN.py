@@ -5,7 +5,10 @@
 # https://data.edmonton.ca/dataset/Water-Levels-and-Flows/cnsu-iagr
 # 
 # This code uses examples from Jason Brownlee's "How to Develop Convolutional Neural Network Models for Time Series Forecasting"
+# Modified By: Andrew Chien andrewkb.chien@gmail.com
 
+from pandas import Series
+from matplotlib import pyplot
 from numpy import array
 from keras.models import Sequential
 from keras.layers import Dense
@@ -29,7 +32,9 @@ def split_sequence(sequence, n_steps):
 	return array(X), array(y)
  
 # define input sequence
-raw_seq = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+#raw_seq = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+raw_seq = Series.from_csv('WL_Edmonton_1day.csv', header=0)
+
 # choose a number of time steps
 n_steps = 3
 # split into samples
