@@ -242,29 +242,35 @@ $(document).ready(function () {
 <p>This notebook shows how River Water Level Data from Edmonton Canada can be filtered.</p>
 <p>Dataset Source: <a href="https://data.edmonton.ca/dataset/Water-Levels-and-Flows/cnsu-iagr" class="uri">https://data.edmonton.ca/dataset/Water-Levels-and-Flows/cnsu-iagr</a></p>
 <p>Libraries required. If packaged not installed, install.packages(“tidyverse”) needs to be run.</p>
-<pre><code>library(tidyverse)</code></pre>
-<p>Read the large dataset into R Environment</p>
+<pre><code>#install.packages(&quot;xts&quot;)
+#install.packages(&quot;lubridate&quot;)
+library(tidyverse)
+library(xts)
+library(lubridate)</code></pre>
+<p>Read the large dataset into R Environment. Note: The loading will take a minute or two as the file is 500MB in size.</p>
 <pre><code>Water&lt;- read.csv(&quot;C:/Users/andre/Desktop/WaterLevel/Water_Levels_and_Flows.csv&quot;)</code></pre>
-<p>The loading will take a minute or two as the file is 500MB in size.</p>
+<p>Use the command below to check the loaded data.</p>
 <pre><code>view(Water)</code></pre>
-<p>Filter and store the Edmonton River data into dataset Edmonton. Note: Edmonton Data has two records for each identical time stamp.</p>
-<pre><code>Edmonton &lt;- filter(Water, Station.Number == &quot;05DF001&quot;)
-atimCreek &lt;- filter(Water, Station.Number == &quot;05EA012&quot;)</code></pre>
-<p>CSV format allows the dataset to be used for Python programs. Optional: Here are the commands for saving the if we want to store this dataset to disk, key in the following command:</p>
-<pre><code>write.csv(Edmonton, &quot;C:/Users/andre/Desktop/WaterLevel/Edmonton.csv&quot;)
-rm(Water_Levels_and_Flows)</code></pre>
-<p>rm command to remove the large dataset from memory.</p>
-<p>Next we need to sort the rows according to date and time to get the rows in order for us to convert it into a time series. Use the POSIXct function to do so as our column has both date and time.</p>
-<pre><code>atimCreek_WL_sort &lt;- atimCreek_WL[order(as.POSIXct(atimCreek_WL$Date.and.Time, format=&quot;%m/%d/%Y %H:%M:%S&quot;)),]</code></pre>
-<p>The commands below select only the Date and Time and Water level columns out of the Edmonton River dataset.</p>
-<pre><code>Edmonton_WL &lt;- select(Edmonton, Date.and.Time, Water.Level..m.)
-write.csv(Edmonton_WL, &quot;C:/Users/andre/Desktop/WaterLevel/Edmonton.csv&quot;)</code></pre>
-<p>Next we can convert the Edmonton Water Levels into a time series for time series analysis in R.</p>
-<pre><code>Edmonton_series &lt;- select(Edmonton, Water.Level..m.)
-Edmonton_ts &lt;-ts(Edmonton_series)</code></pre>
+<p>Filter and store the AtimCreek River data into dataset atimCreek. <!-- Edmonton <- filter(Water, Station.Number == "05DF001") Note: Edmonton Data has two records for each identical time stamp. --></p>
+<pre><code>atimCreek &lt;- filter(Water, Station.Number == &quot;05EA012&quot;)</code></pre>
+<p>Optional: Next we can choose to store the dataset in the CSV format using the write.csv function. The CSV format allows the dataset to be used for Python programs. Here are the commands for saving the if we want to store this dataset to disk, key in the following command:</p>
+<p>We run the rm command to remove the large dataset from memory.</p>
+<pre><code>write.csv(atimCreek, &quot;C:/Users/andre/Desktop/WaterLevel/atimCreek.csv&quot;)
+rm(Water)</code></pre>
+<p>The commands below select only the Date and Time and Water level columns out of the AtimCreek River dataset.</p>
+<pre><code>atimCreek_WL &lt;- select(atimCreek, Date.and.Time, Water.Level..m.)
+</code></pre>
+<p>Next we need to sort the rows according to date and time to get the rows in order for us to convert atimCreek into a time series. Use the POSIXct function to do so as our column has both date and time. atimCreek_WL_Sort is the new dataset that has been sorted according to time.</p>
+<pre><code>atimCreek_WL_Sort &lt;- atimCreek_WL[order(as.POSIXct(atimCreek_WL$Date.and.Time, format=&quot;%m/%d/%Y %H:%M:%S&quot;)),]
+write.csv(atimCreek_WL_Sort, &quot;C:/Users/andre/Desktop/WaterLevel/atimCreek_WL_Sort.csv&quot;)</code></pre>
+<p>Next we can convert the AtimCreek Water Levels into a time series for time series analysis in R. We will need select only the datetime sorted Water.Level..m. column</p>
+<pre><code>atimCreek_Series &lt;- select(atimCreek, Water.Level..m.)
+write.csv(atimCreek_Series, &quot;C:/Users/andre/Desktop/WaterLevel/atimCreek_Series.csv&quot;)
+atimCreek_ts &lt;-ts(atimCreekSeries,)</code></pre>
+<p><a href="https://stackoverflow.com/questions/27704804/r-time-series-with-datapoints-every-15-min" class="uri">https://stackoverflow.com/questions/27704804/r-time-series-with-datapoints-every-15-min</a></p>
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlJpdmVyIFdhdGVyIExldmVsIERhdGEgRmlsdGVyaW5nIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NClRoaXMgbm90ZWJvb2sgc2hvd3MgaG93IFJpdmVyIFdhdGVyIExldmVsIERhdGEgZnJvbSBFZG1vbnRvbiBDYW5hZGEgY2FuIGJlIGZpbHRlcmVkLg0KDQpEYXRhc2V0IFNvdXJjZTogaHR0cHM6Ly9kYXRhLmVkbW9udG9uLmNhL2RhdGFzZXQvV2F0ZXItTGV2ZWxzLWFuZC1GbG93cy9jbnN1LWlhZ3INCg0KTGlicmFyaWVzIHJlcXVpcmVkLiBJZiBwYWNrYWdlZCBub3QgaW5zdGFsbGVkLCBpbnN0YWxsLnBhY2thZ2VzKCJ0aWR5dmVyc2UiKSBuZWVkcyB0byBiZSBydW4uDQpgYGANCmxpYnJhcnkodGlkeXZlcnNlKQ0KYGBgDQoNClJlYWQgdGhlIGxhcmdlIGRhdGFzZXQgaW50byBSIEVudmlyb25tZW50DQpgYGANCldhdGVyPC0gcmVhZC5jc3YoIkM6L1VzZXJzL2FuZHJlL0Rlc2t0b3AvV2F0ZXJMZXZlbC9XYXRlcl9MZXZlbHNfYW5kX0Zsb3dzLmNzdiIpDQpgYGANClRoZSBsb2FkaW5nIHdpbGwgdGFrZSBhIG1pbnV0ZSBvciB0d28gYXMgdGhlIGZpbGUgaXMgNTAwTUIgaW4gc2l6ZS4NCg0KYGBgDQp2aWV3KFdhdGVyKQ0KYGBgDQpGaWx0ZXIgYW5kIHN0b3JlIHRoZSBFZG1vbnRvbiBSaXZlciBkYXRhIGludG8gZGF0YXNldCBFZG1vbnRvbi4gTm90ZTogRWRtb250b24gRGF0YSBoYXMgdHdvIHJlY29yZHMgZm9yIGVhY2ggaWRlbnRpY2FsIHRpbWUgc3RhbXAuDQpgYGANCkVkbW9udG9uIDwtIGZpbHRlcihXYXRlciwgU3RhdGlvbi5OdW1iZXIgPT0gIjA1REYwMDEiKQ0KYXRpbUNyZWVrIDwtIGZpbHRlcihXYXRlciwgU3RhdGlvbi5OdW1iZXIgPT0gIjA1RUEwMTIiKQ0KYGBgDQpDU1YgZm9ybWF0IGFsbG93cyB0aGUgZGF0YXNldCB0byBiZSB1c2VkIGZvciBQeXRob24gcHJvZ3JhbXMuIE9wdGlvbmFsOiBIZXJlIGFyZSB0aGUgY29tbWFuZHMgZm9yIHNhdmluZyB0aGUgaWYgd2Ugd2FudCB0byBzdG9yZSB0aGlzIGRhdGFzZXQgdG8gZGlzaywga2V5IGluIHRoZSANCmZvbGxvd2luZyBjb21tYW5kOg0KYGBgDQp3cml0ZS5jc3YoRWRtb250b24sICJDOi9Vc2Vycy9hbmRyZS9EZXNrdG9wL1dhdGVyTGV2ZWwvRWRtb250b24uY3N2IikNCnJtKFdhdGVyX0xldmVsc19hbmRfRmxvd3MpDQpgYGANCnJtIGNvbW1hbmQgdG8gcmVtb3ZlIHRoZSBsYXJnZSBkYXRhc2V0IGZyb20gbWVtb3J5Lg0KDQpOZXh0IHdlIG5lZWQgdG8gc29ydCB0aGUgcm93cyBhY2NvcmRpbmcgdG8gZGF0ZSBhbmQgdGltZSB0byBnZXQgdGhlIHJvd3MgaW4gb3JkZXIgZm9yIHVzIHRvIGNvbnZlcnQgaXQgaW50byBhIHRpbWUgc2VyaWVzLiBVc2UgdGhlIFBPU0lYY3QgZnVuY3Rpb24gdG8gZG8gc28gYXMgb3VyIGNvbHVtbiBoYXMgYm90aCBkYXRlIGFuZCB0aW1lLg0KYGBgDQphdGltQ3JlZWtfV0xfc29ydCA8LSBhdGltQ3JlZWtfV0xbb3JkZXIoYXMuUE9TSVhjdChhdGltQ3JlZWtfV0wkRGF0ZS5hbmQuVGltZSwgZm9ybWF0PSIlbS8lZC8lWSAlSDolTTolUyIpKSxdDQpgYGANCg0KVGhlIGNvbW1hbmRzIGJlbG93IHNlbGVjdCBvbmx5IHRoZSBEYXRlIGFuZCBUaW1lIGFuZCBXYXRlciBsZXZlbCBjb2x1bW5zIG91dCBvZiB0aGUgRWRtb250b24gUml2ZXIgZGF0YXNldC4NCmBgYA0KRWRtb250b25fV0wgPC0gc2VsZWN0KEVkbW9udG9uLCBEYXRlLmFuZC5UaW1lLCBXYXRlci5MZXZlbC4ubS4pDQp3cml0ZS5jc3YoRWRtb250b25fV0wsICJDOi9Vc2Vycy9hbmRyZS9EZXNrdG9wL1dhdGVyTGV2ZWwvRWRtb250b24uY3N2IikNCmBgYA0KTmV4dCB3ZSBjYW4gY29udmVydCB0aGUgRWRtb250b24gV2F0ZXIgTGV2ZWxzIGludG8gYSB0aW1lIHNlcmllcyBmb3IgdGltZSBzZXJpZXMgYW5hbHlzaXMgaW4gUi4NCmBgYA0KRWRtb250b25fc2VyaWVzIDwtIHNlbGVjdChFZG1vbnRvbiwgV2F0ZXIuTGV2ZWwuLm0uKQ0KRWRtb250b25fdHMgPC10cyhFZG1vbnRvbl9zZXJpZXMpDQpgYGANCg0KDQoNCg0KDQo=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlJpdmVyIFdhdGVyIExldmVsIERhdGEgRmlsdGVyaW5nIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NClRoaXMgbm90ZWJvb2sgc2hvd3MgaG93IFJpdmVyIFdhdGVyIExldmVsIERhdGEgZnJvbSBFZG1vbnRvbiBDYW5hZGEgY2FuIGJlIGZpbHRlcmVkLg0KDQpEYXRhc2V0IFNvdXJjZTogaHR0cHM6Ly9kYXRhLmVkbW9udG9uLmNhL2RhdGFzZXQvV2F0ZXItTGV2ZWxzLWFuZC1GbG93cy9jbnN1LWlhZ3INCg0KTGlicmFyaWVzIHJlcXVpcmVkLiBJZiBwYWNrYWdlZCBub3QgaW5zdGFsbGVkLCBpbnN0YWxsLnBhY2thZ2VzKCJ0aWR5dmVyc2UiKSBuZWVkcyB0byBiZSBydW4uDQpgYGANCiNpbnN0YWxsLnBhY2thZ2VzKCJ4dHMiKQ0KI2luc3RhbGwucGFja2FnZXMoImx1YnJpZGF0ZSIpDQpsaWJyYXJ5KHRpZHl2ZXJzZSkNCmxpYnJhcnkoeHRzKQ0KbGlicmFyeShsdWJyaWRhdGUpDQpgYGANCg0KUmVhZCB0aGUgbGFyZ2UgZGF0YXNldCBpbnRvIFIgRW52aXJvbm1lbnQuIE5vdGU6IFRoZSBsb2FkaW5nIHdpbGwgdGFrZSBhIG1pbnV0ZSBvciB0d28gYXMgdGhlIGZpbGUgaXMgNTAwTUIgaW4gc2l6ZS4NCmBgYA0KV2F0ZXI8LSByZWFkLmNzdigiQzovVXNlcnMvYW5kcmUvRGVza3RvcC9XYXRlckxldmVsL1dhdGVyX0xldmVsc19hbmRfRmxvd3MuY3N2IikNCmBgYA0KVXNlIHRoZSBjb21tYW5kIGJlbG93IHRvIGNoZWNrIHRoZSBsb2FkZWQgZGF0YS4NCmBgYA0KdmlldyhXYXRlcikNCmBgYA0KRmlsdGVyIGFuZCBzdG9yZSB0aGUgQXRpbUNyZWVrIFJpdmVyIGRhdGEgaW50byBkYXRhc2V0IGF0aW1DcmVlay4gDQo8IS0tIEVkbW9udG9uIDwtIGZpbHRlcihXYXRlciwgU3RhdGlvbi5OdW1iZXIgPT0gIjA1REYwMDEiKSBOb3RlOiBFZG1vbnRvbiBEYXRhIGhhcyB0d28gcmVjb3JkcyBmb3IgZWFjaCBpZGVudGljYWwgdGltZSBzdGFtcC4gLS0+IA0KYGBgDQphdGltQ3JlZWsgPC0gZmlsdGVyKFdhdGVyLCBTdGF0aW9uLk51bWJlciA9PSAiMDVFQTAxMiIpDQpgYGANCk9wdGlvbmFsOiBOZXh0IHdlIGNhbiBjaG9vc2UgdG8gc3RvcmUgdGhlIGRhdGFzZXQgaW4gdGhlIENTViBmb3JtYXQgdXNpbmcgdGhlIHdyaXRlLmNzdiBmdW5jdGlvbi4gVGhlIENTViBmb3JtYXQgYWxsb3dzIHRoZSBkYXRhc2V0IHRvIGJlIHVzZWQgZm9yIFB5dGhvbiBwcm9ncmFtcy4gSGVyZSBhcmUgdGhlIGNvbW1hbmRzIGZvciBzYXZpbmcgdGhlIGlmIHdlIHdhbnQgdG8gc3RvcmUgdGhpcyBkYXRhc2V0IHRvIGRpc2ssIGtleSBpbiB0aGUgDQpmb2xsb3dpbmcgY29tbWFuZDoNCg0KV2UgcnVuIHRoZSBybSBjb21tYW5kIHRvIHJlbW92ZSB0aGUgbGFyZ2UgZGF0YXNldCBmcm9tIG1lbW9yeS4NCmBgYA0Kd3JpdGUuY3N2KGF0aW1DcmVlaywgIkM6L1VzZXJzL2FuZHJlL0Rlc2t0b3AvV2F0ZXJMZXZlbC9hdGltQ3JlZWsuY3N2IikNCnJtKFdhdGVyKQ0KYGBgDQpUaGUgY29tbWFuZHMgYmVsb3cgc2VsZWN0IG9ubHkgdGhlIERhdGUgYW5kIFRpbWUgYW5kIFdhdGVyIGxldmVsIGNvbHVtbnMgb3V0IG9mIHRoZSBBdGltQ3JlZWsgUml2ZXIgZGF0YXNldC4gDQpgYGANCmF0aW1DcmVla19XTCA8LSBzZWxlY3QoYXRpbUNyZWVrLCBEYXRlLmFuZC5UaW1lLCBXYXRlci5MZXZlbC4ubS4pDQoNCmBgYA0KTmV4dCB3ZSBuZWVkIHRvIHNvcnQgdGhlIHJvd3MgYWNjb3JkaW5nIHRvIGRhdGUgYW5kIHRpbWUgdG8gZ2V0IHRoZSByb3dzIGluIG9yZGVyIGZvciB1cyB0byBjb252ZXJ0IGF0aW1DcmVlayBpbnRvIGEgdGltZSBzZXJpZXMuIFVzZSB0aGUgUE9TSVhjdCBmdW5jdGlvbiB0byBkbyBzbyBhcyBvdXIgY29sdW1uIGhhcyBib3RoIGRhdGUgYW5kIHRpbWUuIGF0aW1DcmVla19XTF9Tb3J0IGlzIHRoZSBuZXcgZGF0YXNldCB0aGF0IGhhcyBiZWVuIHNvcnRlZCBhY2NvcmRpbmcgdG8gdGltZS4NCmBgYA0KYXRpbUNyZWVrX1dMX1NvcnQgPC0gYXRpbUNyZWVrX1dMW29yZGVyKGFzLlBPU0lYY3QoYXRpbUNyZWVrX1dMJERhdGUuYW5kLlRpbWUsIGZvcm1hdD0iJW0vJWQvJVkgJUg6JU06JVMiKSksXQ0Kd3JpdGUuY3N2KGF0aW1DcmVla19XTF9Tb3J0LCAiQzovVXNlcnMvYW5kcmUvRGVza3RvcC9XYXRlckxldmVsL2F0aW1DcmVla19XTF9Tb3J0LmNzdiIpDQpgYGANCk5leHQgd2UgY2FuIGNvbnZlcnQgdGhlIEF0aW1DcmVlayBXYXRlciBMZXZlbHMgaW50byBhIHRpbWUgc2VyaWVzIGZvciB0aW1lIHNlcmllcyBhbmFseXNpcyBpbiBSLiBXZSB3aWxsIG5lZWQgc2VsZWN0IG9ubHkgdGhlIGRhdGV0aW1lIHNvcnRlZCBXYXRlci5MZXZlbC4ubS4gY29sdW1uDQpgYGANCmF0aW1DcmVla19TZXJpZXMgPC0gc2VsZWN0KGF0aW1DcmVlaywgV2F0ZXIuTGV2ZWwuLm0uKQ0Kd3JpdGUuY3N2KGF0aW1DcmVla19TZXJpZXMsICJDOi9Vc2Vycy9hbmRyZS9EZXNrdG9wL1dhdGVyTGV2ZWwvYXRpbUNyZWVrX1Nlcmllcy5jc3YiKQ0KYXRpbUNyZWVrX3RzIDwtdHMoYXRpbUNyZWVrU2VyaWVzLCkNCmBgYA0KaHR0cHM6Ly9zdGFja292ZXJmbG93LmNvbS9xdWVzdGlvbnMvMjc3MDQ4MDQvci10aW1lLXNlcmllcy13aXRoLWRhdGFwb2ludHMtZXZlcnktMTUtbWluDQoNCg0KDQoNCg0K</div>
 
 
 

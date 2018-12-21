@@ -8,46 +8,51 @@ Dataset Source: https://data.edmonton.ca/dataset/Water-Levels-and-Flows/cnsu-iag
 
 Libraries required. If packaged not installed, install.packages("tidyverse") needs to be run.
 ```
+#install.packages("xts")
+#install.packages("lubridate")
 library(tidyverse)
+library(xts)
+library(lubridate)
 ```
 
-Read the large dataset into R Environment
+Read the large dataset into R Environment. Note: The loading will take a minute or two as the file is 500MB in size.
 ```
 Water<- read.csv("C:/Users/andre/Desktop/WaterLevel/Water_Levels_and_Flows.csv")
 ```
-The loading will take a minute or two as the file is 500MB in size.
-
+Use the command below to check the loaded data.
 ```
 view(Water)
 ```
-Filter and store the Edmonton River data into dataset Edmonton. Note: Edmonton Data has two records for each identical time stamp.
+Filter and store the AtimCreek River data into dataset atimCreek. 
+<!-- Edmonton <- filter(Water, Station.Number == "05DF001") Note: Edmonton Data has two records for each identical time stamp. --> 
 ```
-Edmonton <- filter(Water, Station.Number == "05DF001")
 atimCreek <- filter(Water, Station.Number == "05EA012")
 ```
-CSV format allows the dataset to be used for Python programs. Optional: Here are the commands for saving the if we want to store this dataset to disk, key in the 
+Optional: Next we can choose to store the dataset in the CSV format using the write.csv function. The CSV format allows the dataset to be used for Python programs. Here are the commands for saving the if we want to store this dataset to disk, key in the 
 following command:
-```
-write.csv(Edmonton, "C:/Users/andre/Desktop/WaterLevel/Edmonton.csv")
-rm(Water_Levels_and_Flows)
-```
-rm command to remove the large dataset from memory.
 
-Next we need to sort the rows according to date and time to get the rows in order for us to convert it into a time series. Use the POSIXct function to do so as our column has both date and time.
+We run the rm command to remove the large dataset from memory.
 ```
-atimCreek_WL_sort <- atimCreek_WL[order(as.POSIXct(atimCreek_WL$Date.and.Time, format="%m/%d/%Y %H:%M:%S")),]
+write.csv(atimCreek, "C:/Users/andre/Desktop/WaterLevel/atimCreek.csv")
+rm(Water)
 ```
+The commands below select only the Date and Time and Water level columns out of the AtimCreek River dataset. 
+```
+atimCreek_WL <- select(atimCreek, Date.and.Time, Water.Level..m.)
 
-The commands below select only the Date and Time and Water level columns out of the Edmonton River dataset.
 ```
-Edmonton_WL <- select(Edmonton, Date.and.Time, Water.Level..m.)
-write.csv(Edmonton_WL, "C:/Users/andre/Desktop/WaterLevel/Edmonton.csv")
+Next we need to sort the rows according to date and time to get the rows in order for us to convert atimCreek into a time series. Use the POSIXct function to do so as our column has both date and time. atimCreek_WL_Sort is the new dataset that has been sorted according to time.
 ```
-Next we can convert the Edmonton Water Levels into a time series for time series analysis in R.
+atimCreek_WL_Sort <- atimCreek_WL[order(as.POSIXct(atimCreek_WL$Date.and.Time, format="%m/%d/%Y %H:%M:%S")),]
+write.csv(atimCreek_WL_Sort, "C:/Users/andre/Desktop/WaterLevel/atimCreek_WL_Sort.csv")
 ```
-Edmonton_series <- select(Edmonton, Water.Level..m.)
-Edmonton_ts <-ts(Edmonton_series)
+Next we can convert the AtimCreek Water Levels into a time series for time series analysis in R. We will need select only the datetime sorted Water.Level..m. column
 ```
+atimCreek_Series <- select(atimCreek, Water.Level..m.)
+write.csv(atimCreek_Series, "C:/Users/andre/Desktop/WaterLevel/atimCreek_Series.csv")
+atimCreek_ts <-ts(atimCreekSeries,)
+```
+https://stackoverflow.com/questions/27704804/r-time-series-with-datapoints-every-15-min
 
 
 
