@@ -2,10 +2,12 @@
 *.fdb_latexmk
 *.fls
 *.log
-/*.pdf
+*.pdf
 *.synctex.gz
 *.bbl
 *.blg
 *.out
 Water_Levels_and_Flows.csv
 *.csv
+/data
+.Rproj.user

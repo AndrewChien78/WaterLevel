@@ -1,0 +1,17 @@
+# This is a setup script for the WaterLevel Project
+## Libaries Setup
+The libraries required are listed below. If packaged not installed, install.packages("tidyverse") needs to be run.
+
+```{r Library Setup}
+#install.packages("xts")
+#install.packages("lubridate")
+#install.packages("zoo")
+library(tidyverse)
+library(zoo)
+library(xts)
+library(lubridate)
+```
+## Set the Working directory. This maybe skipped or put your own directory. 
+```{r Working Directory}
+working.directory <- "C:/Users/andre/Desktop/WaterLevel"
+```
