@@ -3,6 +3,7 @@ title: "River Water Level Prediction"
 author: "Andrew Chien"
 date: "December 27, 2018"
 output: html_notebook
+fig_caption: yes
 ---
 This notebook shows how River Water Level Data from Edmonton Canada can be filtered.
 Google Style Guide for R is adopted for this document.
@@ -10,17 +11,16 @@ Google Style Guide for R is adopted for this document.
 Dataset Source: https://data.edmonton.ca/dataset/Water-Levels-and-Flows/cnsu-iagr
 
 ## Set Global variables for this program
-Note: Edmonton "05DF001" Edmonton not used as it has two records with identical time stamp.
+Note: Edmonton "05DF001" `Edmonton` not used as it has two records with identical time stamp.
 ```{r Variable settings}
 input.datafile <- "data/Water_Levels_and_Flows.csv"
 station.name <- "atimCreek"
 station.id <- "05EA012"
 data.directory <- "/data/" 
-#setwd(working.directory)
 ```
 
 ## Data Import
-Read the large dataset into R Environment. Note: The loading will take a minute or two as the file is 500MB in size.
+Read the large `water.dataset` into R Environment. Note: The loading will take a minute or two as the file is 500MB in size.
 ```{r}
 water.dataset<- read.csv(input.datafile)
 ```
@@ -31,69 +31,73 @@ View(water.dataset)
 ## Data Tidying
 This step is not needed as the dataset is already tidy (each column is a variable), each row is an observation.
 </br>
+</br>
+
 ## Data Transformation(DT)
 ### DT Part 1 - Narrow and Filter
-Narrow, filter and store the selected River Water Level Station data(e.g. AtimCreek) into a dataset stationData. 
+Narrow, filter and store the selected River Water Level Station data(e.g. AtimCreek) into a dataset `station.data`
 ```{r}
 station.data <- filter(water.dataset, Station.Number == station.id)
 ```
 
-Optional: Next we can choose to store the dataset in the CSV format using the write.csv function. The CSV format allows the dataset to be used for Python programs. Here are the commands for saving the if we want to store this dataset to disk, key in the 
-following command:
+Optional: Next we can choose to store the dataset in the CSV format using the `write.csv` function. The CSV format allows the dataset to be used for Python programs. Here are the commands for saving the if we want to store this dataset to disk, key in the following command:
 
-We run the rm command to remove the large dataset from memory.
-```{r}
+We run the `rm` command to remove the large `water.dataset` from memory.
+```{r echo=TRUE}
 working.directory <- getwd()
 write.csv(station.data, file=paste(working.directory,data.directory,station.name,".csv", sep="")) 
 rm(water.dataset)
 ```
+</br>
 
 ### DT - Part 2 - Select only data needed
-The commands below select only the Date and Time and Water level columns out of the AtimCreek River dataset. 
+The commands below select only the Date and Time and Water level columns out of the `station.waterlevel` dataset. 
 ```{r}
 station.waterlevel<- select(station.data, Date.and.Time, Water.Level..m.)
 ```
+</br>
 
 ### DT - Part 3 - Sorting
-Next we need to sort the rows according to date and time to get the rows in order for us to convert station.waterlevel into a time series. Use the POSIXct function to do so as our column has both date and time. station.sortedwaterlevel is the new dataset that has been sorted according to time.
+Next we need to sort the rows according to date and time to get the rows in order for us to convert `station.waterlevel` into a time series. Use the `POSIXct` function to do so as our column has both date and time. `station.sortedwaterlevel` is the new dataset that has been sorted according to time.
 ```{r}
 station.sortedwaterlevel <- station.waterlevel[order(as.POSIXct(station.waterlevel$Date.and.Time, format="%m/%d/%Y %H:%M:%S")),]
 write.csv(station.sortedwaterlevel,file=paste(working.directory,data.directory,station.name,"_sorted_water_level.csv", sep=""))
 
 ```
+</br>
 
 ### DT - Part 4 - Cleaning?
-After plotting the atimCreek Water Level, I noticed that there are some "zero" or invalid values. Note:
+After plotting the sorted Water Level data, I noticed that there are some "-1" or invalid values. 
 ```{r}
-#need some code to plot station.sortedwaterlevel before cleaning.
+station.series <- select(station.sortedwaterlevel, Water.Level..m.)
 ```
-|![station.name Water Level before sorting and cleaning](atimCreek_WL_Sort_Dirty.png)|
-|:--:|
-| *station.name Water Level before sorting and cleaning*|
 
-These values needs to be cleaned up and these samples removed. After cleaning, 98 samples with -1.000 water level was removed.
+For the conversion from the vector into a time series object we use the `ts()` function. The `ts()` function requires that the frequency and start time to be specified in year format. The start date is found at the first row of the `station.sortedwaterlevel` dataset. We will take that value and use that as a `begin.datetime` value. Note: the start year was previously manually calculated as _2016.7883652_
+```{r}
+begin.datetime <- as.POSIXct(station.sortedwaterlevel[1,1],format="%m/%d/%Y %H:%M:%S",tz="mst")
+station.timeseries <-ts(station.series, frequency = 12*24*365, start=c(as.yearmon(begin.datetime)))
+plot.ts(station.timeseries)
+title(main=paste(station.name,"River Water Level as is",sep=" "))
+```
+
+On Friday 28 Dec 2018, I tried to use ggplot to plot the time series. Results were not so good...Somehow `ggplot` cause a straight line to be drawn..
+```{r}
+#ggplot(data=station.sortedwaterlevel, aes(x = as.Date(station.sortedwaterlevel$Date.and.Time, format="%m/%d/%Y"), y = Water.Level..m.)) + geom_line() + scale_x_date(date_labels = "%b-%d-%Y") + xlab("") + ylab("Water Level")
+#ggplot(data=station.sortedwaterlevel, aes(x = as.POSIXct(station.waterlevel$Date.and.Time, format="%m/%d/%Y %H:%M:%S"), y = Water.Level..m.)) + geom_line() + scale_x_datetime() + xlab("Time") + ylab("Water Level")
+```
+
+These values needs to be cleaned up and these samples removed. After cleaning, 98 samples with -1.000 water level was removed. Note: the removed samples has cause truncation in the dataset.
 ```{r}
 station.cleanwaterlevel <- filter(station.sortedwaterlevel, Water.Level..m. > 0 )
 ```
-Next we can convert the cleaned station water level data into a time series for time series analysis in R. We will need select only the datetime sorted Water.Level..m. column
-```{r}
-atimCreek_Series <- select(atimCreek_WL_Clean, Water.Level..m.)
-write.csv(atimCreek_Series, "C:/Users/andre/Desktop/WaterLevel/atimCreek_Series.csv")
-```
-For the conversion from the vector into a time series object we use the ts() function. The ts() function requires that the frequency and start year is specified. The start date is found at the first row of the atimCreek_WL_Sort.csv file. We will take that value and use that as a begintime value. 
-```{r}
-begintime <- 
+Next we can convert the cleaned station water level data into a time series for time series analysis in R. We will need select only the datetime sorted `Water.Level..m.` column
+```{r fig.cap="\\label{fig:figs} station.name"}
+station.series <- select(station.cleanwaterlevel, Water.Level..m.)
+station.timeseries <-ts(station.series, frequency = 12*24*365, start=c(as.yearmon(begin.datetime)))
+plot.ts(station.timeseries)
+title(main=paste(station.name,"River Water Level after removing -1s",sep=" "))
 ```
 
-```{r}
-atimCreek_ts <-ts(atimCreek_Series, frequency = 12*24*365, start=c(2016.7883652))
-plot.ts(atimCreek_ts)
-```
-| ![AtimCreek Water Level after sorting and cleaning.png](C:/Users/andre/Desktop/WaterLevel/atimCreek_WL_Sort_Clean.png) |
-|:--:|
-| *AtimCreek Water Level after sorting and cleaning* |
-
-https://stackoverflow.com/questions/27704804/r-time-series-with-datapoints-every-15-min
 
 
 

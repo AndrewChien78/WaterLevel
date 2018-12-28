@@ -2,7 +2,7 @@
 ## Libaries Setup
 The libraries required are listed below. If packaged not installed, install.packages("tidyverse") needs to be run.
 
-```{r Library Setup}
+```{r Library Setup, echo=FALSE}
 #install.packages("xts")
 #install.packages("lubridate")
 #install.packages("zoo")
@@ -12,6 +12,7 @@ library(xts)
 library(lubridate)
 ```
 ## Set the Working directory. This maybe skipped or put your own directory. 
-```{r Working Directory}
-working.directory <- "C:/Users/andre/Desktop/WaterLevel"
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+working.directory <- getwd()
+working.directory
 ```

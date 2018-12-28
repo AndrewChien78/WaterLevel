@@ -1,6 +1,6 @@
 ---
 title: "River Water Level Data Filtering"
-output: html_notebook
+output:html_notebook
 ---
 This notebook shows how River Water Level Data from Edmonton Canada can be filtered.
 Google Style Guide for R is adopted for this document.
