@@ -1,0 +1,59 @@
+\documentclass[10pt,a4paper,draft]{article}
+\usepackage[latin1]{inputenc}
+\usepackage[a4paper, total={7in, 10in}]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+	%opening
+	\title{Enhanced Water Level Prediction using Machine Learning Techniques for the Sarawak River}
+	\author{Andrew Chien Kai Bing}
+
+\begin{document}
+	\section{Introduction}
+	Machine Learning is not necessarily better than conventional time series forecasting methods that have been used for the last few decades. Hence this work has to prove that the Machine Learning(ML) methods chosen will provide a better result than prior art. 
+	
+	\section{Framework}
+	From Jason Brownlee's Deep Learning Time Series Forecasting ebook \cite{JasonBrown} Chapter 2, it is useful to setup framework for describing the time series problem that we are tackling:-
+	
+	For the River Water Level Problem that we are solving, the following describes it:
+	\begin{itemize}
+		\item Inputs vs Outputs
+		\\ \textbf{Input}: River Water Level Data, Rainfall Data. The River water level data could be upstream stations which can contribute to the downstream river level. For predicting the last 5 days, probably the last month's water level and rainfall data is useful?
+		\\ \textbf{Outputs}: Future water levels of up to 5 days.
+		
+		\item Endogenous vs. Exogenous
+		\\ River Water Level to be predicted - \textbf{Endogenus}
+		\\ Rainfall data - \textbf{Exogenus}
+		
+		\item Regression vs. Classication
+		\\ Our problem is a \textbf{Regression} problem
+		
+		\item Unstructured vs. Structured
+		\\ The river water level is \textbf{structured} for 24-hour observation. The seasonality is due to tides and rainfall. For a monthly observation, there could be tidal seasonality.
+		
+		\item Univariate vs. Multivariate
+		\\ The problem that we are working out is a \textbf{multivariate} input and univariate output problem.
+		
+		\item Single-step vs. Multi-step
+		\\ This is a \textbf{multi-step} problem because we are interested to predict up to 5 days forecast.
+		
+		\item Static vs. Dynamic 
+		\\ The problem that we are working on is a \textbf{dynamic} problem as the predicted water level changes once the inputs changes. 
+		
+		\item Contiguous vs. Discontiguous
+		\\ The input water level is a \textbf{contiguous} time series as the observations are uniform over time (15 minute interval) except for circumstances where there is a telemetry communication network or sensor error
+		
+		\item Summary
+		Inputs: Endogenus River Water level and Exogenus Rainfall. Our problem is a regression structured, multivariate, multi-step, dynamic, contigious one. 
+		
+		\section{Process to develop the Forecasting Model}
+		
+		
+	\end{itemize}
+
+	% we recommend bibtex for bibliography
+\bibliography{Thesis}
+\bibliographystyle{ieeetr}
+
+\end{document}
