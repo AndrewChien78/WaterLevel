@@ -6,10 +6,12 @@ The libraries required are listed below. If packaged not installed, install.pack
 #install.packages("xts")
 #install.packages("lubridate")
 #install.packages("zoo")
+#install.packages("dplyr"")
 library(tidyverse)
 library(zoo)
 library(xts)
 library(lubridate)
+library(dplyr)
 ```
 ## Set the Working directory. This maybe skipped or put your own directory. 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}

@@ -2,7 +2,9 @@
 title: "River Water Level Prediction"
 author: "Andrew Chien"
 date: "December 27, 2018"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 This notebook shows how River Water Level Data from Edmonton Canada can be filtered.
 Google Style Guide for R https://google.github.io/styleguide/Rguide.xml
@@ -15,20 +17,31 @@ Note: the original dataset has chunks of missing data, rows with water level = -
 
 ## Set Global variables for this program
 Note: Edmonton "05DF001" `Edmonton` not used as it has two records with identical time stamp.
-```{r Variable settings}
+```{r}
 input.datafile <- "data/Water_Levels_and_Flows.csv"
 station.name <- "atimCreek"
 station.id <- "05EA012"
-data.directory <- "/data/" 
+data.directory <- "/data/"
+new.runeval <- FALSE
+new.runoutput <- FALSE
+```
+
+Loads all of the libraries required
+```{r}
+library(dplyr)
+library(tidyverse)
+library(zoo)
+library(xts)
+library(lubridate)
 ```
 
 ## Data Import
-Read the large `water.dataset` into R Environment. Note: The loading will take a minute or two as the file is 500MB in size.
-```{r}
+Read the large `water.dataset` into R Environment. Note: The loading will take a minute or two as the file is 500MB in size. Note: We will not run this code chunk unless we are changing the variables above.
+```{r eval=new.runeval, include=new.runoutput}
 water.dataset<- read.csv(input.datafile)
 ```
 Use the command below to check the loaded data.
-```{r}
+```{r eval=FALSE, include=FALSE}
 View(water.dataset)
 ```
 ## Data Tidying
@@ -39,14 +52,14 @@ This step is not needed as the dataset is already tidy (each column is a variabl
 ## Data Transformation(DT)
 ### DT Part 1 - Narrow and Filter
 Narrow, filter and store the selected River Water Level Station data(e.g. AtimCreek) into a dataset `station.data`
-```{r}
+```{r eval=FALSE, include=FALSE}
 station.data <- filter(water.dataset, Station.Number == station.id)
 ```
 
 Optional 1: Next we can choose to store the dataset in the CSV format using the `write.csv` function. The CSV format allows the dataset to be used for Python programs. Here are the commands for saving the if we want to store this dataset to disk, key in the following command:
 
 We run the `rm` command to remove the large `water.dataset` from memory.
-```{r}
+```{r eval=FALSE, include=FALSE}
 working.directory <- getwd()
 write.csv(station.data, file=paste(working.directory,data.directory,station.name,".csv", sep=""))
 rm(water.dataset)
@@ -54,6 +67,7 @@ rm(water.dataset)
 </br>
 Optional 2: If we would like to load the dataset from a previous run, run the following lines:
 ```{r echo=TRUE}
+working.directory <- getwd()
 station.data <- read.csv(file=paste(working.directory,data.directory,station.name,".csv", sep=""))
 head(station.data)
 ```
@@ -61,7 +75,7 @@ head(station.data)
 ### DT - Part 2 - Select only data needed
 The commands below select only the Date and Time and Water level columns out of the `station.waterlevel` dataset. 
 ```{r}
-station.waterlevel<- select(station.data, Date.and.Time, Water.Level..m.)
+station.waterlevel<-select(station.data, Date.and.Time, Water.Level..m.)
 head(station.waterlevel)
 ```
 </br>
@@ -78,7 +92,9 @@ head(station.sortedwaterlevel)
 ### DT - Part 4 - Cleaning 
 In this portion, I will first see where there is incomplete data. To this I will use the `group_by()` to group the data into months and calculate the completeness statistic of the data.
 
-#### updated on 31 Jan 2019
+#### Missing Data
+On 11 Jan 2019 Spent one two hours trying to figure out why subset was not working correctly. Just found out huge missing chunks of data for Nov 2016! Data from 2016-11-01 00:00:00 to 2016-11-01 01:00:00 missing
+#### 31 Jan 19
 We will use the following code to detect if there is missing data in a particular month. We will group the water level info by month and summarise the number of records in each month and compare it against the number of supposed records per month.
 
 We need to format the `station.sortedwaterlevel$Date.and.Time` which is of factor class into POSIXct class first.
@@ -108,8 +124,8 @@ station.bymonth <- station.WLPOSIXct %>%
   summarise(mean = mean(station.WLPOSIXct$Water.Level..m.), n = n())
 station.bymonth$mean <- NULL
 names(station.bymonth) <- c("month.year", "no.of.rows")
-station.bymonth$no.of.days <- days_in_month(as.Date(paste(station.month$month.year,"-01",sep=""),format="%Y-%m-%d"))
-station.bymonth$completeness <- station.bymonth$no.of.rows/(station.month$no.of.days*288)*100
+station.bymonth$no.of.days <- days_in_month(as.Date(paste(station.bymonth$month.year,"-01",sep=""),format="%Y-%m-%d"))
+station.bymonth$completeness <- station.bymonth$no.of.rows/(station.bymonth$no.of.days*288)*100
 head(station.bymonth)
 ```
 31 Jan 19: From the table only May 2017, July and August 2018 has complete data. August 2018 and Oct 2018 had more than 100% data?. Some other months below show data that is above 90% completeness.
@@ -117,16 +133,14 @@ head(station.bymonth)
 ![](atimCreek_WL_completeness.png)
 
 
-####11 Jan 2019
-
-Spent one two hours trying to figure out why subset was not working correctly. Just found out huge missing chunks of data for Nov 2016! Data from 2016-11-01 00:00:00 to 2016-11-01 01:00:00 missing
-
+### Taking just one month
 We can use the `subset()` function to separate the data into months. We need to convert the `Date.and.Time` column from a factor class to a POSIXct class object before we can use the subset function with "YYYY-MM-DD HH:MM:SS" argument.
 ```{r}
 station.WLPOSIXct <- station.sortedwaterlevel
 station.WLPOSIXct$Date.and.Time <- as.POSIXct(station.sortedwaterlevel$Date.and.Time, format="%m/%d/%Y %H:%M:%S")
-station.Nov2016 <- subset(station.WLPOSIXct, Date.and.Time > "2016-11-01 00:00:00" & Date.and.Time < "2016-12-01 00:00:00")
-
+station.May2017 <- subset(station.WLPOSIXct, Date.and.Time > "2017-05-01 00:00:00" & Date.and.Time < "2017-06-01 00:00:00")
+head(station.May2017)
+tail(station.May2017)
 ```
 
 
@@ -168,10 +182,4 @@ View(station.negativewaterLevel)
 ```
 From the `station.negativewaterLevel` dataset, it seems that Nov 2016, Dec 2016, Jan 2017, May 2017, Dec 2017, Jan 2018, July 2018, August 2018 are the dates without -1 water level values.
 
-
-Next we compare the column n in `summary` with the no. of days
-
-```{r}
-station.WL_POSIXct$No.of.Days<-days_in_month(as.Date(station.WL_POSIXct$Date, format ="%Y-%m-%d"))
-head(station.WL_POSIXct)
-```
+#END
