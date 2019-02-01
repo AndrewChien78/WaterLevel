@@ -20,13 +20,13 @@ SubsetByMonth <- function(timeseries.df, set.month) {
   
   #calculates the last day of set.month
   enddatetime <- (seq(as.Date(startdatetime), length=2, by="months") - 1)
-  enddatetime <- enddatetime[-1]
+  enddatetime <- (enddatetime[-1] + 1)
   
   #converts the string into Date Class
   startdatetime <- as.Date(startdatetime)
   
   #subsets timeseries.df to the set startdatetime and enddatetime range
-  one.month <- subset(timeseries.df,timeseries.df$Date.and.Time  > startdatetime 
+  one.month <- subset(timeseries.df,timeseries.df$Date.and.Time  >= startdatetime 
                       & timeseries.df$Date.and.Time < enddatetime)
   
   # Error handling
