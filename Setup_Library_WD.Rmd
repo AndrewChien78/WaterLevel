@@ -1,17 +1,14 @@
 # This is a setup script for the WaterLevel Project
+# This script allows the installation of packages automatically for new R install.
 ## Libaries Setup
 The libraries required are listed below. If packaged not installed, install.packages("tidyverse") needs to be run.
 
 ```{r Library Setup, echo=FALSE}
-#install.packages("xts")
-#install.packages("lubridate")
-#install.packages("zoo")
-#install.packages("dplyr"")
-library(tidyverse)
-library(zoo)
-library(xts)
-library(lubridate)
-library(dplyr)
+install.packages("tidyverse")
+install.packages("zoo")
+install.packages("xts")
+install.packages("lubridate")
+install.packages("dplyr")
 ```
 ## Set the Working directory. This maybe skipped or put your own directory. 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
