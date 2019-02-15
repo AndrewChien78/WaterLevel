@@ -155,7 +155,7 @@ station.onemonth$no.of.days <- NULL
 head(station.onemonth)
 tail(station.onemonth)
 str(station.onemonth)
-write.csv(station.onemonth, file=paste(working.directory, data.directory,station.name,station.selectedmonths, ".csv", sep=""))
+write.csv(station.onemonth, file=paste(working.directory, data.directory,station.name,station.selectedmonths, ".csv", sep=""), row.names=FALSE)
 ```
 
 <br>

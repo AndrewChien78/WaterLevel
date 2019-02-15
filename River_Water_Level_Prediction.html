@@ -358,7 +358,7 @@ head(station.onemonth)</code></pre>
 <pre><code>## 'data.frame':    8928 obs. of  2 variables:
 ##  $ Date.and.Time  : POSIXct, format: &quot;2017-05-01 00:00:00&quot; &quot;2017-05-01 00:05:00&quot; ...
 ##  $ Water.Level..m.: num  8.72 8.72 8.72 8.72 8.72 ...</code></pre>
-<pre class="r"><code>write.csv(station.onemonth, file=paste(working.directory, data.directory,station.name,station.selectedmonths, &quot;.csv&quot;, sep=&quot;&quot;))</code></pre>
+<pre class="r"><code>write.csv(station.onemonth, file=paste(working.directory, data.directory,station.name,station.selectedmonths, &quot;.csv&quot;, sep=&quot;&quot;), row.names=FALSE)</code></pre>
 <p><br></p>
 </div>
 <div id="check-for-duplicated-records" class="section level4">
