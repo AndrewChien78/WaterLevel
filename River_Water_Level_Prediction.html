@@ -210,7 +210,8 @@ source(paste(projPath, fcnFile, sep=&quot;&quot;))</code></pre>
 <p>Note: Edmonton “05DF001” <code>Edmonton</code> not used as it has two records with identical time stamp.</p>
 <pre class="r"><code>station.name &lt;- &quot;atimCreek&quot;
 station.id &lt;- &quot;05EA012&quot;
-station.selectedmonths &lt;- &quot;2017-05&quot;</code></pre>
+station.selectedmonth &lt;- &quot;2017-05&quot;
+station.selectedday &lt;- &quot;2017-05-01&quot;</code></pre>
 </div>
 <div id="data-import" class="section level2">
 <h2>Data Import</h2>
@@ -335,7 +336,7 @@ head(station.bymonth)</code></pre>
 <div id="taking-just-one-month" class="section level4">
 <h4>Taking just one month</h4>
 <p>We can use the <code>subset()</code> function to separate the data into months. A custom function called SubsetByMonth was written to do this repeatedly. The function takes two arguments a dataframe, and the year month in the “YYYY-MM” format.</p>
-<pre class="r"><code>station.onemonth &lt;- SubsetByMonth(station.WLPOSIXct,station.selectedmonths)
+<pre class="r"><code>station.onemonth &lt;- SubsetByMonth(station.WLPOSIXct,station.selectedmonth)
 station.onemonth$month.year &lt;- NULL
 station.onemonth$no.of.days &lt;- NULL
 head(station.onemonth)</code></pre>
@@ -358,7 +359,32 @@ head(station.onemonth)</code></pre>
 <pre><code>## 'data.frame':    8928 obs. of  2 variables:
 ##  $ Date.and.Time  : POSIXct, format: &quot;2017-05-01 00:00:00&quot; &quot;2017-05-01 00:05:00&quot; ...
 ##  $ Water.Level..m.: num  8.72 8.72 8.72 8.72 8.72 ...</code></pre>
-<pre class="r"><code>write.csv(station.onemonth, file=paste(working.directory, data.directory,station.name,station.selectedmonths, &quot;.csv&quot;, sep=&quot;&quot;), row.names=FALSE)</code></pre>
+<pre class="r"><code>write.csv(station.onemonth, file=paste(working.directory, data.directory,station.name,station.selectedmonth, &quot;.csv&quot;, sep=&quot;&quot;), row.names=FALSE)</code></pre>
+<p>18 Feb 19: The code below subsets the given dataframe into a day.</p>
+<pre class="r"><code>station.oneday &lt;- SubsetByDay(station.WLPOSIXct,station.selectedday)
+head(station.oneday)</code></pre>
+<pre><code>##             Date.and.Time Water.Level..m. month.year no.of.days
+## 49203 2017-05-01 00:00:00           8.721    2017-05         30
+## 60542 2017-05-01 00:05:00           8.721    2017-05         30
+## 60049 2017-05-01 00:10:00           8.724    2017-05         30
+## 22289 2017-05-01 00:15:00           8.723    2017-05         30
+## 75005 2017-05-01 00:20:00           8.719    2017-05         30
+## 17951 2017-05-01 00:25:00           8.723    2017-05         30</code></pre>
+<pre class="r"><code>tail(station.oneday)</code></pre>
+<pre><code>##             Date.and.Time Water.Level..m. month.year no.of.days
+## 76591 2017-05-01 23:30:00           8.712    2017-05         31
+## 24819 2017-05-01 23:35:00           8.713    2017-05         31
+## 33975 2017-05-01 23:40:00           8.713    2017-05         31
+## 34067 2017-05-01 23:45:00           8.714    2017-05         31
+## 2774  2017-05-01 23:50:00           8.719    2017-05         31
+## 69871 2017-05-01 23:55:00           8.715    2017-05         31</code></pre>
+<pre class="r"><code>str(station.oneday)</code></pre>
+<pre><code>## 'data.frame':    288 obs. of  4 variables:
+##  $ Date.and.Time  : POSIXct, format: &quot;2017-05-01 00:00:00&quot; &quot;2017-05-01 00:05:00&quot; ...
+##  $ Water.Level..m.: num  8.72 8.72 8.72 8.72 8.72 ...
+##  $ month.year     : chr  &quot;2017-05&quot; &quot;2017-05&quot; &quot;2017-05&quot; &quot;2017-05&quot; ...
+##  $ no.of.days     : int  30 30 30 30 30 30 30 30 30 30 ...</code></pre>
+<pre class="r"><code>write.csv(station.oneday, file=paste(working.directory, data.directory,station.name,station.selectedday, &quot;.csv&quot;, sep=&quot;&quot;), row.names=FALSE)</code></pre>
 <p><br></p>
 </div>
 <div id="check-for-duplicated-records" class="section level4">
